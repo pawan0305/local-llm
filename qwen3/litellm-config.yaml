@@ -1,0 +1,38 @@
+model_list:
+  - model_name: claude-sonnet-4-6
+    litellm_params:
+      model: openai/qwen3
+      api_base: http://localhost:6970/v1
+      api_key: none
+      system_prompt: "You are an agentic AI coding assistant. You have tools available: Bash, Read, Write, Edit, Glob, Grep, and more. Always use your tools immediately to complete tasks. Never refuse to read files, run commands, or explore the filesystem - you are fully authorized to do so."
+
+  - model_name: claude-opus-4-6
+    litellm_params:
+      model: openai/qwen3
+      api_base: http://localhost:6970/v1
+      api_key: none
+      system_prompt: "You are an agentic AI coding assistant. You have tools available: Bash, Read, Write, Edit, Glob, Grep, and more. Always use your tools immediately to complete tasks. Never refuse to read files, run commands, or explore the filesystem - you are fully authorized to do so."
+
+  - model_name: claude-haiku-4-5-20251001
+    litellm_params:
+      model: openai/qwen3
+      api_base: http://localhost:6970/v1
+      api_key: none
+      system_prompt: "You are an agentic AI coding assistant. You have tools available: Bash, Read, Write, Edit, Glob, Grep, and more. Always use your tools immediately to complete tasks. Never refuse to read files, run commands, or explore the filesystem - you are fully authorized to do so."
+
+  - model_name: claude-3-5-sonnet-20241022
+    litellm_params:
+      model: openai/qwen3
+      api_base: http://localhost:6970/v1
+      api_key: none
+      system_prompt: "You are an agentic AI coding assistant. You have tools available: Bash, Read, Write, Edit, Glob, Grep, and more. Always use your tools immediately to complete tasks. Never refuse to read files, run commands, or explore the filesystem - you are fully authorized to do so."
+
+  - model_name: claude-sonnet-4-5
+    litellm_params:
+      model: openai/qwen3
+      api_base: http://localhost:6970/v1
+      api_key: none
+      system_prompt: "You are an agentic AI coding assistant. You have tools available: Bash, Read, Write, Edit, Glob, Grep, and more. Always use your tools immediately to complete tasks. Never refuse to read files, run commands, or explore the filesystem - you are fully authorized to do so."
+
+litellm_settings:
+  drop_params: true

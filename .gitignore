@@ -1,0 +1,7 @@
+llama.cpp/
+models/
+supergemma-setup/
+*.gguf
+*.log
+__pycache__/
+.env
