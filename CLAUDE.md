@@ -7,7 +7,7 @@ This file gives you (Claude Code / real Sonnet) full context to monitor, debug, 
 ## Who you are talking to
 
 **pawan0305** — the owner of this machine. He runs local LLMs for:
-- **qwencode** — Claude Code sessions using Qwen3.6-35B-A3B instead of real Claude (saves API credits)
+- **qwencode** — Claude Code sessions using Qwen3.6-27B instead of real Claude (saves API credits)
 - **Hermes agent** — autonomous agent tasks
 - **OpenClaw** — agent workflows
 
@@ -21,18 +21,26 @@ He wants you (real Claude) to review what the local models are doing, catch prob
 Claude Code (real Sonnet) ← you are here
       │
       ▼
-qwencode / Hermes / OpenClaw
+qwencode / vllmcode / Hermes / OpenClaw / opencode
       │
       ▼
 LiteLLM proxy (port 4000)   ← ~/Local LLM/qwen3/litellm-config.yaml
+      │                         (used by Claude Code harnesses only)
+      ▼
+llama-server OR vLLM (port 6970)
+  llama-server: ~/Local LLM/qwen3/qwen3.sh  (Qwen3.6-27B UD-Q4_K_XL GGUF)
+  vLLM:         ~/Local LLM/qwen3/vllm.sh   (Lorbus AutoRound int4)
       │
       ▼
-llama-server (port 6970)    ← ~/Local LLM/qwen3/qwen3.sh
-      │
-      ▼
-Qwen3.6-35B-A3B UD-Q4_K_M  ← ~/Local LLM/models/qwen3/
+Qwen3.6-27B                 ← ~/Local LLM/models/qwen3/
 RTX 3090 24GB VRAM
 ```
+
+**Two server options on the same port 6970 — pick one:**
+| Server | Script | Model | Est. TPS |
+|--------|--------|-------|----------|
+| llama-server (llama.cpp) | `qwen3.sh` | UD-Q4_K_XL GGUF | ~60 TPS |
+| vLLM | `vllm.sh` | Lorbus AutoRound int4 | ~85 TPS |
 
 ---
 
@@ -40,36 +48,52 @@ RTX 3090 24GB VRAM
 
 | File | Purpose |
 |------|---------|
-| `~/Local LLM/qwen3/qwen3.sh` | llama-server launch config — ngl, ctx-size, np, reasoning |
-| `~/Local LLM/qwen3/qwen3code.sh` | Claude Code launcher — starts LiteLLM then claude |
+| `~/Local LLM/qwen3/qwen3.sh` | llama-server launch (GGUF, port 6970, ctx 131072) |
+| `~/Local LLM/qwen3/vllm.sh` | vLLM launch (AutoRound int4, port 6970, ctx 131072) |
+| `~/Local LLM/qwen3/qwen3code.sh` | Claude Code via llama-server + LiteLLM |
+| `~/Local LLM/qwen3/vllmcode.sh` | Claude Code via vLLM + LiteLLM |
 | `~/Local LLM/qwen3/litellm-config.yaml` | LiteLLM model routing + system prompt injection |
-| `~/Local LLM/supergemma/supergemma.sh` | SuperGemma4 server (secondary model, port 6969) |
-| `~/Local LLM/supergemma/gemmacode.sh` | Claude Code via SuperGemma4 |
-| `~/.hermes/config.yaml` | Hermes agent config — model, provider, base_url |
-| `~/.hermes/.env` | Hermes env vars — API keys, timeouts |
+| `~/.hermes/config.yaml` | Hermes agent config — model, provider, base_url: localhost:6970 |
 | `~/.hermes/SOUL.md` | Hermes persona |
+| `~/.config/opencode/config.json` | OpenCode config — points to qwen3 on port 6970 |
 | `/tmp/qwen3.log` | Live llama-server log |
+| `/tmp/vllm.log` | Live vLLM log |
 | `/tmp/litellm.log` | Live LiteLLM proxy log |
 | `~/.claude/projects/-home-pawan/*.jsonl` | Claude Code session histories |
 
 ---
 
-## Current Qwen3 Server Settings
+## Current Qwen3 Server Settings (llama-server)
 
 ```bash
 -ngl 999              # full GPU offload
--np 2                 # 2 parallel sessions (Claude Code + Hermes simultaneously)
---ctx-size 262144     # 256K context (model native limit)
---cache-type-k q4_0   # quantized KV cache
+-np 1                 # 1 parallel session
+--ctx-size 131072     # 128K context (reduced from 256K for speed + headroom)
+--cache-type-k q4_0   # quantized KV cache (~2GB at 128K)
 --cache-type-v q4_0
 --flash-attn on
---reasoning off       # thinking disabled — agentic use, not chat
---temp 0.6            # Qwen3 official recommendation
+--reasoning on        # thinking enabled — useful for Hermes / coding agents
+--temp 0.6
 --top-k 20
---presence-penalty 1.5
+--presence-penalty 0.0
 ```
 
-**VRAM budget:** ~22.4GB used / 24GB total. ~1.6GB free. Tight but stable.
+**VRAM budget:** ~16.4GB model + ~2GB KV cache = ~18.4GB / 24GB. ~5.6GB headroom.
+
+## vLLM Server Settings
+
+```bash
+--dtype float16
+--gpu-memory-utilization 0.95
+--max-model-len 131072
+--max-num-seqs 1
+--enable-prefix-caching
+--enable-chunked-prefill
+--speculative-config '{"method":"mtp","num_speculative_tokens":3}'
+```
+
+Model: `Lorbus/Qwen3.6-27B-int4-AutoRound` at `~/Local LLM/models/qwen3/lorbus-autoround/`
+venv: `~/Local LLM/venv-vllm/` (Python 3.11)
 
 ---
 
@@ -87,8 +111,13 @@ RTX 3090 24GB VRAM
 ## Shell Aliases (in ~/.bashrc)
 
 ```bash
+# llama-server (GGUF)
 startqwen / stopqwen / qwenlogs / qwencode
-startgemma / stopgemma / gemmalogs / gemmacode
+
+# vLLM (AutoRound int4, faster)
+startvllm / stopvllm / vllmlogs / vllmcode
+
+# Shared
 startlitellm / stoplitellm
 startwebui / stopwebui
 ```

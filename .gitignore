@@ -5,3 +5,4 @@ supergemma-setup/
 *.log
 __pycache__/
 .env
+venv-vllm/
