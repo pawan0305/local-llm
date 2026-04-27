@@ -43,10 +43,8 @@ exec "$VENV/bin/vllm" serve "$MODEL" \
   --port 6970 \
   --served-model-name qwen3 \
   --dtype float16 \
-  --gpu-memory-utilization 0.95 \
-  --max-model-len 131072 \
+  --gpu-memory-utilization 0.97 \
+  --max-model-len 32768 \
   --max-num-seqs 1 \
-  --enable-prefix-caching \
   --enable-chunked-prefill \
-  --speculative-config '{"method":"mtp","num_speculative_tokens":3}' \
   --trust-remote-code
