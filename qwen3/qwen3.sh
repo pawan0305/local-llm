@@ -29,7 +29,7 @@ fi
 echo "Starting Qwen3.6-27B..."
 echo "  Model:    $MODEL"
 echo "  GPU layers: 999 (full model on GPU, ~18GB)"
-echo "  Context:  131072 tokens (128K, KV cache quantized to q4_0)"
+echo "  Context:  215040 tokens (210K, KV cache quantized to q4_0)"
 echo "  API:      http://localhost:6970/v1"
 echo ""
 echo "  Web UI →  http://localhost:6970"
@@ -43,7 +43,7 @@ exec "$LLAMA_DIR/build/bin/llama-server" \
   --reasoning on \
   -ngl 999 \
   -np 1 \
-  --ctx-size 131072 \
+  --ctx-size 215040 \
   --cache-type-k q4_0 \
   --cache-type-v q4_0 \
   --flash-attn on \

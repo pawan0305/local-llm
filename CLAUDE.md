@@ -88,8 +88,8 @@ and get thinking tokens — better quality, half the visible TPS.
 ```bash
 -ngl 999              # full GPU offload
 -np 1                 # 1 parallel session
---ctx-size 131072     # 128K context
---cache-type-k q4_0   # quantized KV cache (~2GB at 128K)
+--ctx-size 215040     # 210K context
+--cache-type-k q4_0   # quantized KV cache (~3.3GB at 210K)
 --cache-type-v q4_0
 --flash-attn on
 --ubatch-size 2048    # physical batch for faster prefill
