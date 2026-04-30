@@ -49,6 +49,8 @@ exec "$LLAMA_DIR/build/bin/llama-server" \
   --flash-attn on \
   -t 8 \
   --ubatch-size 2048 \
+  --spec-type ngram-map-k4v \
+  --spec-draft-n-max 16 \
   --temp 0.6 \
   --top-k 20 \
   --top-p 0.95 \

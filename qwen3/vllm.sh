@@ -11,7 +11,7 @@
 # Hardware: RTX 3090 24GB VRAM
 #   Model: Lorbus/Qwen3.6-27B-int4-AutoRound
 #   MTP spec-decode: 3 draft tokens (uses built-in MTP heads)
-#   Context: 131072 (128K)
+#   Context: 65536 (64K, fp8 KV cache)
 # =============================================================================
 
 VENV="$HOME/Local LLM/venv-vllm"
@@ -31,12 +31,14 @@ fi
 
 echo "Starting Qwen3.6-27B (vLLM)..."
 echo "  Model:   $MODEL"
-echo "  Context: 131072 (128K)"
-echo "  Spec:    MTP n=3"
+echo "  Context: 65536 (64K, fp8 KV cache)"
+echo "  Spec:    MTP n=3 (enabled via --speculative-config)"
 echo "  API:     http://localhost:6970/v1"
 echo ""
 echo "Press Ctrl+C to stop."
 echo ""
+
+export PATH="$VENV/bin:$PATH"
 
 exec "$VENV/bin/vllm" serve "$MODEL" \
   --host 0.0.0.0 \
@@ -44,7 +46,9 @@ exec "$VENV/bin/vllm" serve "$MODEL" \
   --served-model-name qwen3 \
   --dtype float16 \
   --gpu-memory-utilization 0.97 \
-  --max-model-len 32768 \
+  --kv-cache-dtype fp8 \
+  --max-model-len 65536 \
   --max-num-seqs 1 \
   --enable-chunked-prefill \
-  --trust-remote-code
+  --trust-remote-code \
+  --speculative-config '{"method": "mtp", "num_speculative_tokens": 3}'
