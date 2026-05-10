@@ -13,7 +13,7 @@
 # Hardware: RTX 3090 24GB VRAM
 #   - 999 GPU layers → full ~18GB model fits with 6GB headroom
 #   - Hybrid DeltaNet+Attention: KV cache only needed for 16/64 attention layers
-#   - 256K context fits comfortably at -np 1 with q4_0 KV cache
+#   - -np 2: 2 concurrent sessions, 215040 ctx total → ~107K per slot
 # =============================================================================
 
 LLAMA_DIR="$HOME/Local LLM/llama.cpp"
@@ -42,7 +42,7 @@ exec "$LLAMA_DIR/build/bin/llama-server" \
   --jinja \
   --reasoning on \
   -ngl 999 \
-  -np 1 \
+  -np 2 \
   --ctx-size 215040 \
   --cache-type-k q4_0 \
   --cache-type-v q4_0 \
